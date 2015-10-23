@@ -85,7 +85,7 @@ if [ "$(whoami)" = "root" ]; then
 fi
 
 if [ -z "$MACHINE" ]; then
-    MACHINE='imx6qsabresd'
+    MACHINE='nitrogen6x'
 fi
 
 # Check the machine type specified
@@ -155,10 +155,13 @@ if [ ! -e conf/local.conf.sample ]; then
     grep -v '^#\|^$' conf/local.conf.sample > conf/local.conf
     cat >> conf/local.conf <<EOF
 
-BB_NUMBER_THREADS = '$NCPU'
-PARALLEL_MAKE = '-j $NCPU'
+LICENSE_FLAGS_WHITELIST = "commercial"
 
-DL_DIR ?= "\${BSPDIR}/downloads/"
+DL_DIR ?= '/opt/freescale/yocto/imx/'
+SSTATE_DIR ?= '/opt/freescale/yocto/sstate-cache'
+
+BB_NUMBER_THREADS = '4'
+PARALLEL_MAKE = '-j 4'
 EOF
     # Change settings according environment
     sed -e "s,MACHINE ??=.*,MACHINE ??= '$MACHINE',g" \
