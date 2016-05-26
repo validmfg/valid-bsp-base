@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: shell-script; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 #
-# Copyright (C) 2012, 2013 O.S. Systems Software LTDA.
+# Copyright (C) 2012, 2013, 2016 O.S. Systems Software LTDA.
 # Authored-by:  Otavio Salvador <otavio@ossystems.com.br>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 # Add options for the script
 # Copyright (C) 2013 Freescale Semiconductor, Inc.
 
-NCPU=`grep -c processor /proc/cpuinfo`
 CWD=`pwd`
 PROGNAME="setup-environment"
 
@@ -29,7 +28,7 @@ usage()
     echo -e "\nUsage: source $PROGNAME <build-dir>
     <build-dir>: specifies the build directory location (required)
 
-If undefined, this script will set \$MACHINE to 'imx6qsabresd'.
+If undefined, this script will set \$MACHINE to 'nitrogen6x'.
 "
 
     ls sources/*/conf/machine/*.conf > /dev/null 2>&1
@@ -47,7 +46,7 @@ MACHINE=<machine> source $PROGNAME <build-dir>
 clean_up()
 {
    unset EULA LIST_MACHINES VALID_MACHINE
-   unset NCPU CWD TEMPLATES SHORTOPTS LONGOPTS ARGS PROGNAME
+   unset CWD TEMPLATES SHORTOPTS LONGOPTS ARGS PROGNAME
    unset generated_config updated
    unset MACHINE SDKMACHINE DISTRO OEROOT
 }
@@ -109,9 +108,9 @@ if [ -z "$DISTRO" ]; then
     DISTRO='poky'
 fi
 
-OEROOT=sources/poky
-if [ -e sources/oe-core ]; then
-    OEROOT=sources/oe-core
+OEROOT=$PWD/sources/poky
+if [ -e $PWD/sources/oe-core ]; then
+    OEROOT=$PWD/sources/oe-core
 fi
 
 # Ensure all files in sources/base are kept in sync with project root
@@ -133,9 +132,7 @@ if [ "$updated" = "true" ]; then
     return
 fi
 
-cd $OEROOT
-
-. ./oe-init-build-env $CWD/$1 > /dev/null
+. $OEROOT/oe-init-build-env $CWD/$1 > /dev/null
 
 # if conf/local.conf not generated, no need to go further
 if [ ! -e conf/local.conf ]; then
@@ -182,11 +179,26 @@ EOF
 fi
 
 # Handle EULA setting
-if [ -z "$EULA" ] && ! grep -q '^ACCEPT_FSL_EULA\s*=' conf/local.conf; then
-    EULA='ask'
+EULA_ACCEPTED=
+
+# EULA has been accepted already (ACCEPT_FSL_EULA is set in local.conf)
+if grep -q '^\s*ACCEPT_FSL_EULA\s*=\s*["'\'']..*["'\'']' conf/local.conf; then
+    EULA_ACCEPTED=1
 fi
 
-if [ "$EULA" = "ask" ]; then
+if [ -z "$EULA_ACCEPTED" ] && [ -n "$EULA" ]; then
+    # The FSL EULA is not set as accepted in local.conf, but the EULA
+    # variable is set in the environment, so we just configure
+    # ACCEPT_FSL_EULA in local.conf according to $EULA.
+    echo "ACCEPT_FSL_EULA = \"$EULA\"" >> conf/local.conf
+elif [ -n "$EULA_ACCEPTED" ]; then
+    # The FSL EULA has been accepted once, so ACCEPT_FSL_EULA is set
+    # in local.conf.  No need to do anything.
+    :
+else
+    # THE FSL EULA is not set as accepted in local.conf, and EULA is
+    # not set in the environment, so we need to ask user if he/she
+    # accepts the FSL EULA:
     cat <<EOF
 
 Some BSPs depend on libraries and packages which are covered by Freescale's
@@ -199,26 +211,23 @@ EOF
 
     more -d $CWD/sources/meta-fsl-arm/EULA
     echo
-    while [ "$EULA" = "ask" ]; do
+    REPLY=
+    while [ -z "$REPLY" ]; do
         echo -n "Do you accept the EULA you just read? (y/n) "
         read REPLY
         case "$REPLY" in
             y|Y)
             echo "EULA has been accepted."
-            EULA="1"
+            echo "ACCEPT_FSL_EULA = \"1\"" >> conf/local.conf
             ;;
             n|N)
             echo "EULA has not been accepted."
-            EULA="0"
+            ;;
+            *)
+            REPLY=
             ;;
         esac
     done
-fi
-
-if grep -q '^ACCEPT_FSL_EULA\s*=' conf/local.conf; then
-    sed -i "s/^#*ACCEPT_FSL_EULA\s*=.*/ACCEPT_FSL_EULA = \"$EULA\"/g" conf/local.conf
-else
-    echo "ACCEPT_FSL_EULA = \"$EULA\"" >> conf/local.conf
 fi
 
 cat <<EOF
