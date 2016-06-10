@@ -154,8 +154,6 @@ if [ ! -e conf/local.conf.sample ]; then
 
 LICENSE_FLAGS_WHITELIST = "commercial"
 
-IMAGE_CLASSES += "image_types_boundary"
-
 DL_DIR ?= '/opt/freescale/yocto/imx/'
 SSTATE_DIR ?= '/opt/freescale/yocto/sstate-cache'
 
