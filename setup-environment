@@ -105,7 +105,7 @@ if [ -z "$SDKMACHINE" ]; then
 fi
 
 if [ -z "$DISTRO" ]; then
-    DISTRO='poky'
+    DISTRO='vdsdist'
 fi
 
 OEROOT=$PWD/sources/poky
@@ -232,7 +232,7 @@ fi
 
 cat <<EOF
 
-Welcome to Freescale Community BSP
+Welcome to Validmfg's BSP
 
 The Yocto Project has extensive documentation about OE including a
 reference manual which can be found at:
@@ -244,11 +244,7 @@ For more information about OpenEmbedded see their website:
 You can now run 'bitbake <target>'
 
 Common targets are:
-    core-image-minimal
-    meta-toolchain
-    meta-toolchain-sdk
-    adt-installer
-    meta-ide-support
+    valid-gic
 
 EOF
 
