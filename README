@@ -1,4 +1,4 @@
-Boundary Yocto BSP
+Validmfg Yocto BSP
 ===============================
 
 Quick Start Guide
@@ -37,10 +37,12 @@ The following layers are included on this release:
    Mailing list: https://lists.yoctoproject.org/listinfo/meta-freescale
    Note: Use [meta-fsl-arm-extra] in subject to easy the processing
 
- * meta-fsl-demos: demo images and recipes
-   Path: sources/meta-fsl-demos
-   Project: https://github.com/Freescale/meta-fsl-demos
-   GIT: git://github.com/Freescale/meta-fsl-demos.git
-   Mailing list: https://lists.yoctoproject.org/listinfo/meta-freescale
-   Note: Use [meta-fsl-demos] in subject to easy the processing
+ * meta-qt5: qt5 browser support
+   Path: sources/meta-qt5
+   Project: https://github.com/meta-qt5/meta-qt5
+   GIT: git://github.com/meta-qt5/meta-qt5.git
 
+ * meta-valid-display-systems: support for valid display systems
+   Path: sources/meta-valid-display-systems
+   Project: https://github.com/validmfg/valid-display-systems
+   GIT: git://github.com/validmfg/valid-display-systems.git
