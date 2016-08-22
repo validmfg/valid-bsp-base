@@ -178,6 +178,10 @@ EOF
     generated_config=1
 fi
 
+# Setup and whitelist CVSPATH
+export BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE CVSPATH"
+export CVSPATH="`echo $CVSROOT | sed 's/:pserver://g'`"
+
 # Handle EULA setting
 EULA_ACCEPTED=
 
